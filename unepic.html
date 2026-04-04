@@ -375,11 +375,11 @@ const DB = {
     { nombre:"Celestus",                    nivel:20, daño:320, bonus:"Light dmg. +200%\nLight crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",  especial:"Light upon kill" },
     { nombre:"Chaos",                       nivel:20, daño:320, bonus:"Arcane dmg. +200%\nArcane crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",especial:"Magic upon kill" },
     { nombre:"CubanB's Staff",              nivel:15, daño:230, bonus:null,                                                                                         especial:"+2 To your purchasing charisma. Essences cost less coin." },
-    { nombre:"Demonic staff",               nivel:13, daño:120, bonus:null,                                                                                         especial:null },
-    { nombre:"Drakonite",                   nivel:20, daño:230, bonus:null,                                                                                         especial:"Fire upon kill" },
-    { nombre:"Glacius",                     nivel:20, daño:320, bonus:null,                                                                                         especial:"Frost upon kill" },
-    { nombre:"Great Staff of the Alchemist",nivel:18, daño:250, bonus:null,                                                                                         especial:null },
-    { nombre:"Miraculum",                   nivel:20, daño:320, bonus:null,                                                                                         especial:"Lifesteal upon kill" },
+    { nombre:"Demonic staff",               nivel:13, daño:120, bonus:"Arcane dmg. +95%\nArcane crit. chance +15%\nArcane cast speed +20% ",                                                                                         especial:null },
+    { nombre:"Drakonite",                   nivel:20, daño:230, bonus:"Fire dmg. +200%\nFire crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",                                                                                         especial:"Fire upon kill" },
+    { nombre:"Glacius",                     nivel:20, daño:320, bonus:"Frost dmg. +200%\nFrost crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",                                                                                         especial:"Frost upon kill" },
+    { nombre:"Great Staff of the Alchemist",nivel:18, daño:250, bonus:"Alteration dmg. +30%\nOrange essences saving +2",                                                                                         especial:null },
+    { nombre:"Miraculum",                   nivel:20, daño:320, bonus:"Healing +200%\nStaff crit. chance +15%\nStaff att. speed +20%",                                                                                         especial:"Lifesteal upon kill" },
   ],
   Varitas: [
     { nombre:"Arkanita", nivel:15, daño:4, hechizo:"Arcane Bolt" },
@@ -395,7 +395,7 @@ const DB = {
     { nombre:"Magic bolt",            tipo:"Arcano",     nivel:16, esencias:"2 arcane essence",  descripcion:null },
     { nombre:"Advanced regeneration", tipo:"Sanación",   nivel:16, esencias:"20 green essence",  descripcion:"While this spell is active, your wounds heal quickly." },
     { nombre:"Titan strength",        tipo:"Alteración", nivel:16, esencias:"12 yellow essence", descripcion:"Increases your strength, making your attacks more powerful." },
-    { nombre:"Slow",                  tipo:"Alteración", nivel:null,esencias:null,               descripcion:null },
+    { nombre:"Slow",                  tipo:"Alteración", nivel:0,esencias:"2 yellow essence",               descripcion:"Reduces de victim's speed for a moment." },
   ],
   Linternas: [
     { nombre:"Crystal of Archmage",       bonus:"Fire crit. chance +25%\nFrost crit. chance +25%\nArcane crit. chance +25%\nFire dmg. +25%\nFrost dmg. +25%\nArcane dmg. +25%\nMelee prot. -50", especial:"This crystal emmits some green creepy light. You don't feel safe while holding it." },
@@ -523,6 +523,7 @@ const MAPS = [
   { name:"Scabb Dungeon: Part 3", drops:[
     { cat:"Anillos", nombre:"Cursed Ring of Slow", garantizado:false },
     { cat:"Varitas", nombre:"Venomia", garantizado:false },
+    { cat:"Linternas", nombre:"Voodoo Head", garantizado:false },
   ]},
   { name:"Night of the Tryfids", drops:[
     { cat:"Anillos",   nombre:"Ring of the Warlock",             garantizado:false },
