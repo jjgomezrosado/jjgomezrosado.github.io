@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unepic — Loot Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:            #0d0a07;
+    --bg2:           #13100c;
+    --bg3:           #1c1610;
+    --bg4:           #221a10;
+    --border:        #3a2e1e;
+    --border-bright: #6b4f2a;
+    --gold:          #c9922a;
+    --gold-light:    #e8b84b;
+    --gold-dim:      #7a5a1a;
+    --text:          #d4c4a0;
+    --text-dim:      #7a6a50;
+    --text-bright:   #f0e0c0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(100,60,10,.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(50,20,80,.10) 0%, transparent 50%);
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  header::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  header h1 {
+    font-family:'Cinzel',serif; font-size:clamp(2rem,5vw,3.5rem);
+    font-weight:900; color:var(--gold-light); letter-spacing:.15em;
+    text-shadow:0 0 30px rgba(200,150,40,.4), 0 2px 4px rgba(0,0,0,.8);
+  }
+  header p { color:var(--text-dim); font-style:italic; font-size:.95rem; margin-top:.3rem; }
+
+  /* ── LAYOUT ── */
+  .container { max-width:1400px; margin:0 auto; padding:1.5rem; }
+
+  .stats-bar { display:flex; gap:1.5rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+  .stat-item { font-size:.82rem; color:var(--text-dim); }
+  .stat-item strong { color:var(--gold); font-family:'Cinzel',serif; font-size:1rem; }
+
+  /* ── TABS ── */
+  .tabs {
+    display:flex; gap:0; border-bottom:2px solid var(--border);
+    margin-bottom:1.5rem; overflow-x:auto;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+  }
+  .tab-btn {
+    background:none; border:none; border-bottom:2px solid transparent;
+    color:var(--text-dim); font-family:'Cinzel',serif; font-size:.78rem;
+    letter-spacing:.1em; padding:.7rem 1.1rem; cursor:pointer;
+    white-space:nowrap; transition:all .2s; margin-bottom:-2px; text-transform:uppercase;
+  }
+  .tab-btn:hover { color:var(--gold); }
+  .tab-btn.active {
+    color:var(--gold-light); border-bottom-color:var(--gold);
+    background:linear-gradient(180deg,transparent,rgba(200,146,42,.08));
+  }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* ── CONTROLS ── */
+  .controls { display:flex; gap:.75rem; margin-bottom:1.2rem; flex-wrap:wrap; align-items:center; }
+  .search-wrap { position:relative; flex:1; min-width:200px; }
+  .search-wrap::before {
+    content:'⚔'; position:absolute; left:.8rem; top:50%;
+    transform:translateY(-50%); color:var(--gold-dim); font-size:.9rem;
+  }
+  input[type="text"], select {
+    background:var(--bg3); border:1px solid var(--border); color:var(--text);
+    font-family:'Crimson Pro',serif; font-size:.95rem; padding:.5rem .75rem;
+    border-radius:3px; outline:none; transition:border-color .2s; width:100%;
+  }
+  .search-wrap input { padding-left:2.2rem; }
+  input[type="text"]:focus, select:focus { border-color:var(--gold-dim); }
+  select { cursor:pointer; min-width:160px; width:auto; }
+  select option { background:var(--bg2); }
+
+  /* ════════════════════════════════
+     MAP LIST — lista expandible
+  ════════════════════════════════ */
+  .map-list { display:flex; flex-direction:column; gap:2px; }
+
+  .map-row {
+    border:1px solid var(--border);
+    border-radius:3px;
+    overflow:hidden;
+    transition:border-color .2s;
+  }
+  .map-row.open { border-color:var(--gold-dim); }
+
+  .map-row-header {
+    display:flex; align-items:center; gap:.75rem;
+    padding:.65rem 1rem; cursor:pointer;
+    background:var(--bg2);
+    transition:background .15s;
+    user-select:none;
+  }
+  .map-row-header:hover { background:var(--bg3); }
+  .map-row.open .map-row-header { background:var(--bg4); }
+
+  .map-row-arrow {
+    color:var(--gold-dim); font-size:.7rem; transition:transform .2s; flex-shrink:0;
+  }
+  .map-row.open .map-row-arrow { transform:rotate(90deg); color:var(--gold); }
+
+  .map-row-name {
+    font-family:'Cinzel',serif; font-size:.85rem; color:var(--text-bright);
+    font-weight:600; letter-spacing:.04em; flex:1; min-width:0;
+  }
+  .map-row.open .map-row-name { color:var(--gold-light); }
+
+  .map-row-badges { display:flex; gap:.3rem; flex-wrap:wrap; flex-shrink:0; }
+  .map-badge {
+    font-size:.65rem; padding:.1rem .4rem; border-radius:2px;
+    font-family:'Cinzel',serif; letter-spacing:.04em;
+    border:1px solid; opacity:.8; white-space:nowrap;
+  }
+
+  /* ── EXPANDED BODY ── */
+  .map-row-body {
+    display:none;
+    padding:1rem 1.2rem 1.2rem;
+    background:linear-gradient(180deg, var(--bg4) 0%, var(--bg2) 100%);
+    border-top:1px solid var(--border);
+  }
+  .map-row.open .map-row-body { display:block; }
+
+  .map-items-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));
+    gap:.75rem;
+  }
+
+  /* ── ITEM CARD ── */
+  .item-card {
+    background:var(--bg); border:1px solid var(--border); border-left-width:3px;
+    border-radius:3px; padding:.75rem .9rem;
+    cursor:pointer; transition:border-color .2s, transform .15s;
+  }
+  .item-card:hover { border-color:var(--border-bright); transform:translateY(-1px); }
+
+  .item-card-top {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:.5rem; margin-bottom:.45rem;
+  }
+  .item-card-name {
+    font-weight:600; color:var(--text-bright); font-size:.9rem; line-height:1.3;
+  }
+  .item-card-cat {
+    font-family:'Cinzel',serif; font-size:.6rem; letter-spacing:.07em;
+    text-transform:uppercase; white-space:nowrap; flex-shrink:0; margin-top:.1rem;
+  }
+
+  .item-stats { font-size:.8rem; line-height:1.55; }
+  .item-stat  { display:flex; gap:.5rem; }
+  .stat-lbl   { color:var(--gold-dim); min-width:52px; flex-shrink:0; }
+  .stat-val   { color:var(--text); }
+  .stat-bonus { color:var(--text-dim); white-space:pre-line; line-height:1.4; }
+
+  .item-card-special {
+    margin-top:.45rem; font-size:.8rem; font-style:italic; color:var(--gold);
+    border-top:1px solid var(--border); padding-top:.35rem; line-height:1.35;
+  }
+  .guaranteed-tag {
+    display:inline-block; background:var(--gold-dim); color:var(--bg);
+    font-family:'Cinzel',serif; font-size:.58rem; letter-spacing:.05em;
+    padding:.05rem .35rem; border-radius:2px; margin-left:.4rem;
+    vertical-align:middle; font-weight:700;
+  }
+  .no-results { text-align:center; padding:2.5rem; color:var(--text-dim); font-style:italic; }
+
+  /* ════════════════════════════════
+     CATEGORY TABLE
+  ════════════════════════════════ */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  thead th {
+    font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--gold); padding:.6rem .75rem;
+    text-align:left; border-bottom:2px solid var(--border-bright);
+    background:var(--bg2); cursor:pointer; white-space:nowrap;
+    user-select:none; transition:color .15s;
+  }
+  thead th:hover { color:var(--gold-light); }
+  thead th.sorted-asc::after  { content:' ↑'; color:var(--gold-light); }
+  thead th.sorted-desc::after { content:' ↓'; color:var(--gold-light); }
+  tbody tr { border-bottom:1px solid var(--border); transition:background .15s; cursor:pointer; }
+  tbody tr:hover { background:rgba(100,70,20,.12); }
+  tbody td { padding:.55rem .75rem; vertical-align:top; color:var(--text); }
+  td.name-col  { font-weight:600; color:var(--text-bright); white-space:nowrap; }
+  td.num-col   { text-align:right; color:var(--gold); font-variant-numeric:tabular-nums; }
+  td.bonus-col { font-size:.82rem; color:var(--text-dim); max-width:280px; }
+  td.map-col   { font-size:.82rem; color:var(--text-dim); font-style:italic; }
+
+  /* ════════════════════════════════
+     MODAL
+  ════════════════════════════════ */
+  .modal-bg {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.75); z-index:100;
+    align-items:center; justify-content:center; padding:1rem;
+  }
+  .modal-bg.open { display:flex; }
+  .modal {
+    background:var(--bg2); border:1px solid var(--border-bright);
+    border-radius:6px; max-width:520px; width:100%;
+    max-height:80vh; overflow-y:auto; padding:1.5rem;
+    position:relative; box-shadow:0 20px 60px rgba(0,0,0,.8);
+  }
+  .modal::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+  .modal h2       { font-family:'Cinzel',serif; color:var(--gold-light); font-size:1.3rem; margin-bottom:.3rem; }
+  .modal-cat      { font-size:.78rem; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; margin-bottom:1rem; font-family:'Cinzel',serif; }
+  .modal-field    { margin-bottom:.7rem; }
+  .modal-field label { display:block; font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:.2rem; }
+  .modal-field .val  { color:var(--text); font-size:.92rem; white-space:pre-line; }
+  .modal-field .val.highlight { color:var(--gold); font-weight:600; }
+  .map-tag { display:inline-block; background:rgba(100,70,20,.2); border:1px solid var(--border); border-radius:2px; padding:.2rem .6rem; font-size:.82rem; color:var(--text-dim); margin:.2rem .2rem .2rem 0; font-style:italic; }
+  .modal-close {
+    position:absolute; top:1rem; right:1rem; background:none;
+    border:1px solid var(--border); color:var(--text-dim);
+    width:28px; height:28px; border-radius:3px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:all .15s;
+  }
+  .modal-close:hover { border-color:var(--gold-dim); color:var(--gold); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--border-bright); }
+
+  @media(max-width:600px){
+    .controls { flex-direction:column; }
+    select { width:100%; }
+    .map-items-grid { grid-template-columns:1fr; }
+    .map-row-badges { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Unepic Wiki</h1>
+</header>
+
+<div class="container">
+  <div class="stats-bar" id="globalStats"></div>
+  <div class="tabs"      id="mainTabs"></div>
+  <div id="panelContainer"></div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal"   id="modalContent"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// BASE DE DATOS — extraída directamente del Excel
+// ════════════════════════════════════════════════════════════════════
+const DB = {
+  Anillos: [
+    { nombre:"Blessed ring of Manasa",            bonus:"Poison effect -35%",                                                                                                                              especial:"Your melee attacks poison enemies." },
+    { nombre:"Blue Ring of Ras'kah",              bonus:"Frost dmg. +15%\nFrost prot. +8",                                                                                                                especial:null },
+    { nombre:"Cursed Ring of Slow",               bonus:"Chance attacker is slowed 5%",                                                                                                                   especial:"When an enemy strikes you, there is a chance to be slowed down for 10 seconds." },
+    { nombre:"Healing Ring of Koorah",            bonus:"Healing +20%\nHP regen. 1",                                                                                                                      especial:null },
+    { nombre:"Kanmuru's Bracelet",                bonus:"Bow att. speed +7%\nMelee att. speed +7%\nFire cast speed +7%\nFrost cast speed +7%\nArcane cast speed +7%\nMelee dodge chance +7%",             especial:"The bracelet's enchantment makes its wearer feel more nimble." },
+    { nombre:"Kol'Zarek's Ring of Strength",      bonus:"Dagger dmg. +60\nSword dmg. +60\nMace dmg. +60\nAxe dmg. +60\nPolearm dmg. +60",                                                                especial:null },
+    { nombre:"Protective ring of fire",           bonus:"Fire prot. +5",                                                                                                                                  especial:null },
+    { nombre:"Protective ring of ice",            bonus:"Frost prot. +5",                                                                                                                                 especial:null },
+    { nombre:"Protective Ring of Maldur",         bonus:"Melee prot. +15\nProjectiles prot. +15\nDagger dmg. +15\nSword dmg. +15\nMace dmg. +15\nAxe dmg. +15\nPolearm dmg +15",                         especial:null },
+    { nombre:"Protective ring of the elements",   bonus:"Fire prot. +5\nFrost prot. +5",                                                                                                                  especial:null },
+    { nombre:"Protective ring of the mage",       bonus:"Arcane prot. +5",                                                                                                                                especial:null },
+    { nombre:"Protective ring of the necromancer",bonus:"Shadow prot. +5",                                                                                                                                especial:null },
+    { nombre:"Red Ring of Kal'Hor",               bonus:"Fire dmg. +15%\nFire prot. +8",                                                                                                                  especial:null },
+    { nombre:"Ring of alteration mastery",        bonus:"Alteration dmg. +25%\nx161 +10%\nProjectiles prot. +50",                                                                                         especial:null },
+    { nombre:"Ring of arcane mastery",            bonus:"Arcane dmg. +25%\nArcane crit. chance +10%\nArcane prot. +50",                                                                                   especial:null },
+    { nombre:"Ring of Axe Mastery",               bonus:"Axe dmg. +50\nAxe crit. chance +5%\nAxe att. speed +5%",                                                                                        especial:null },
+    { nombre:"Ring of Bow Mastery",               bonus:"Bow dmg. +50\nBow crit. chance +5%\nBow att. speed +5%",                                                                                        especial:null },
+    { nombre:"Ring of Dagger Mastery",            bonus:"Dagger dmg. +50\nDagger crit. chance +5%\nDagger att. speed +5%",                                                                               especial:null },
+    { nombre:"Ring of fire mastery",              bonus:"Fire dmg. +25%\nFire crit. chance +10%\nFire prot. +50",                                                                                         especial:null },
+    { nombre:"Ring of Gendurion",                 bonus:"Polearm dmg. +60\nPolearm att. speed +10%\nPolearm crit. chance +20%",                                                                           especial:null },
+    { nombre:"Ring of heal mastery",              bonus:"Healing +25%\nx166 +10%\nMelee prot. +50",                                                                                                       especial:null },
+    { nombre:"Ring of ice mastery",               bonus:"Frost dmg. +25%\nFrost crit. chance +10%\nFrost prot. +50",                                                                                      especial:null },
+    { nombre:"Ring of Immortal",                  bonus:"Max HP +150\nChance attacker is slowed 15%\nNo durability loss +30%",                                                                             especial:null },
+    { nombre:"Ring of light mastery",             bonus:"Light dmg. +25%\nLight crit. chance +10%\nExtra divine favours: +1",                                                                             especial:null },
+    { nombre:"Ring of Mace Mastery",              bonus:"Mace dmg. +50\nMace crit. chance +5%\nMace att. speed +5%",                                                                                      especial:null },
+    { nombre:"Ring of Polearm Mastery",           bonus:"Polearm dmg. +50\nPolearm crit. chance +5%\nPolearm att. speed +5%",                                                                            especial:null },
+    { nombre:"Ring of Skies",                     bonus:null,                                                                                                                                            especial:"Increases your jumping distance." },
+    { nombre:"Ring of Staff Mastery",             bonus:"Staff dmg. +50\nStaff crit. chance +5%\nStaff att. speed +5%",                                                                                  especial:null },
+    { nombre:"Ring of Sword Mastery",             bonus:"Sword dmg. +50\nSword crit. chance +5%\nSword att. speed +5%",                                                                                  especial:null },
+    { nombre:"Ring of the Ancient Lord",          bonus:"Alteration dmg. +30%\nExperience +20%\nArcane prot. +150\nMelee prot. +150",                                                                     especial:null },
+    { nombre:"Ring of the Assassin",              bonus:"Cast breaking resist 5\nPoison effect -100%\nDagger dmg. +80\nSword dmg. +80\nMace dmg. +80\nAxe dmg. +80\nPolearm dmg. +80\nBow dmg. +80",   especial:null },
+    { nombre:"Ring of the Underworld",            bonus:"Frost dmg. +25%\nArcane dmg. +25%\nFrost crit. chance +5%\nArcane crit. chance +5%",                                                           especial:null },
+    { nombre:"Ring of the Warlock",               bonus:"Arcane dmg. +15%\nArcane prot. +8",                                                                                                             especial:null },
+    { nombre:"Skull ring",                        bonus:"Fire dmg. +10%\nArcane dmg. 25%",                                                                                                               especial:"Evento Halloween" },
+  ],
+  Dagas: [
+    { nombre:"Gaetha",        nivel:2,  daño:85,  bonus:"Dagger crit. chance +3%",                           especial:"Bonus damage vs orcs" },
+    { nombre:"Golden Knife",  nivel:20, daño:500, bonus:"Dagger crit. chance +20%\nDagger att. speed +10%", especial:"Asio's beloved knife. Probably stolen from some notorious vampire hunter." },
+    { nombre:"Illness",       nivel:20, daño:290, bonus:"Dagger att. speed +10%",                           especial:"Your melee attacks poison enemies." },
+    { nombre:"Ontrixion",     nivel:10, daño:205, bonus:"EXP +10%\nDagger crit. chance +7%",                especial:"Chance to double strike" },
+    { nombre:"Stiven's Rib",  nivel:20, daño:400, bonus:"Extra skeletons +1",                               especial:"Magic upon kill" },
+    { nombre:"Stygma",        nivel:6,  daño:150, bonus:"HP regen. 2\nDagger crit. chance +5%",             especial:"Lifesteal upon kill" },
+  ],
+  Espadas: [
+    { nombre:"Ashes",                 nivel:20, daño:310, bonus:"Sword att. speed +20%",                                           especial:"Fire upon kill" },
+    { nombre:"Clamyxia",              nivel:2,  daño:85,  bonus:"Sword att. speed +10%\nSword crit. chance +3%",                  especial:"3x Damage on crit." },
+    { nombre:"Edward's Cursed Blade", nivel:12, daño:200, bonus:"Frost dmg. +10%\nArcane dmg. +10%\nSword crit. chance +15%",     especial:"3x Damage on crit." },
+    { nombre:"Rendaria",              nivel:6,  daño:180, bonus:"Sword att. speed +10%\nSword crit. chance +4%",                  especial:"Chance to double strike" },
+    { nombre:"Spike's eviscerator",   nivel:16, daño:225, bonus:"Sword att. speed +30%",                                          especial:"Lifesteal upon kill" },
+    { nombre:"Zweigart",              nivel:10, daño:260, bonus:"EXP +10%\nSword crit. chance +5%",                               especial:"3x Damage on crit." },
+  ],
+  Mazas: [
+    { nombre:"Bonebreaker",      nivel:14, daño:280, bonus:null,                                                                        especial:"Multi-target attacks" },
+    { nombre:"Crusher",          nivel:2,  daño:70,  bonus:"Mace crit. chance +3%",                                                    especial:"Chance to stun" },
+    { nombre:"Demolisher",       nivel:14, daño:340, bonus:"Mace att. speed +20%\nMace crit. chance +10%\nFire dmg. +50%\nFrost dmg. +50%", especial:"Fire upon kill" },
+    { nombre:"Fracture",         nivel:20, daño:400, bonus:"Mace att. speed +25%\nLight dmg. +75%",                                    especial:"Multi-target attacks" },
+    { nombre:"Hammer of Justice",nivel:20, daño:650, bonus:"Mace att. speed +25%\nLight dmg. +75%",                                    especial:"Multi-target attacks" },
+    { nombre:"Healing Idol",     nivel:0,  daño:0,   bonus:"HP regen. 30\nHealing +100%",                                              especial:null },
+    { nombre:"Ortox",            nivel:6,  daño:180, bonus:"Mace crit. chance +4%",                                                    especial:"Fire upon kill" },
+    { nombre:"Skeletroyer",      nivel:10, daño:260, bonus:"EXP +10%\nMace crit. chance +5%",                                          especial:"Bonus damage vs undead" },
+  ],
+  Hachas: [
+    { nombre:"Axe of the crypt keeper", nivel:20, daño:800, bonus:"Axe att. speed -10%",            especial:"Multi-target attacks" },
+    { nombre:"Chap",                    nivel:20, daño:500, bonus:"Axe crit. chance +25%",           especial:"Frost upon kill" },
+    { nombre:"Devian",                  nivel:10, daño:290, bonus:"EXP +10%\nAxe crit. chance +5%", especial:"3x Damage on crit." },
+    { nombre:"Gork' Haul",             nivel:6,  daño:200, bonus:"Axe crit. chance +4%",            especial:"3x Damage on crit." },
+    { nombre:"Horga'hn Axe",           nivel:3,  daño:95,  bonus:"Axe crit. chance +3%",            especial:"Chance to double strike" },
+    { nombre:"Sorix",                   nivel:2,  daño:90,  bonus:"Axe crit. chance +3%",            especial:"Chance to double strike" },
+  ],
+  Astas: [
+    { nombre:"Driniux",            nivel:2,  daño:65,  bonus:"Polearm att. speed +10%\nPolearm crit. chance +3%",                  especial:"Lifesteal upon kill" },
+    { nombre:"Eviscerax",          nivel:10, daño:220, bonus:"Polearm att. speed +15%\nPolearm crit. chance +5%",                  especial:"Lifesteal upon kill" },
+    { nombre:"Halbertus",          nivel:13, daño:260, bonus:"Polearm att. speed +10%",                                            especial:"Acid upon kill" },
+    { nombre:"LanceLoth",          nivel:14, daño:300, bonus:"Polearm att. speed +20%\nPolearm crit. chance +10%\nFrost dmg. +50%",especial:"Chance to double strike" },
+    { nombre:"Spear of Gendurion", nivel:20, daño:425, bonus:"Polearm att. speed +20%\nPolearm crit. chance +5%",                 especial:"Lightweight and balanced, this weapon allows you to attack faster." },
+    { nombre:"Storm",              nivel:20, daño:400, bonus:"Polearm att. speed +25%",                                            especial:"Chance to double strike" },
+    { nombre:"Zelantia",           nivel:6,  daño:140, bonus:"Polearm att. speed +10%\nPolearm crit. chance +4%",                 especial:"Acid upon kill" },
+  ],
+  Arcos: [
+    { nombre:"Acidic Tear",  nivel:20, daño:350, bonus:"Bow att. speed -10%\nBow crit. chance +15%",                   especial:"Acid shots" },
+    { nombre:"Deathwind",    nivel:10, daño:160, bonus:"EXP +10%\nBow crit. chance +5%",                               especial:"Slightly slower double shots" },
+    { nombre:"Drill",        nivel:20, daño:250, bonus:"Bow crit. chance +15%",                                        especial:"Hits two targets" },
+    { nombre:"Hellfire Bow", nivel:20, daño:200, bonus:"Bow att. speed +10%",                                          especial:"Fire upon kill" },
+    { nombre:"Ranged Anger", nivel:14, daño:150, bonus:"Bow att. speed +20%\nBow crit. chance +10%\nFire dmg. +50%",  especial:"Poison shots" },
+    { nombre:"Skorpion",     nivel:6,  daño:120, bonus:"EXP +10%\nBow crit. chance +4%",                              especial:null },
+  ],
+  Bastones: [
+    { nombre:"Ancient Elemental Staff",     nivel:20, daño:250, bonus:"Fire dmg. +300%\nFrost dmg. +300%\nFire cast speed +15%\nFrost cast speed +15%\nMax HP -200", especial:null },
+    { nombre:"Celestus",                    nivel:20, daño:320, bonus:"Light dmg. +200%\nLight crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",  especial:"Light upon kill" },
+    { nombre:"Chaos",                       nivel:20, daño:320, bonus:"Arcane dmg. +200%\nArcane crit. chance +15%\nStaff crit. chance +15%\nStaff att. speed +20%",especial:"Magic upon kill" },
+    { nombre:"CubanB's Staff",              nivel:15, daño:230, bonus:null,                                                                                         especial:"+2 To your purchasing charisma. Essences cost less coin." },
+    { nombre:"Demonic staff",               nivel:13, daño:120, bonus:null,                                                                                         especial:null },
+    { nombre:"Drakonite",                   nivel:20, daño:230, bonus:null,                                                                                         especial:"Fire upon kill" },
+    { nombre:"Glacius",                     nivel:20, daño:320, bonus:null,                                                                                         especial:"Frost upon kill" },
+    { nombre:"Great Staff of the Alchemist",nivel:18, daño:250, bonus:null,                                                                                         especial:null },
+    { nombre:"Miraculum",                   nivel:20, daño:320, bonus:null,                                                                                         especial:"Lifesteal upon kill" },
+  ],
+  Varitas: [
+    { nombre:"Arkanita", nivel:15, daño:4, hechizo:"Arcane Bolt" },
+    { nombre:"Gelita",   nivel:10, daño:6, hechizo:"Ice Bolt" },
+    { nombre:"Incendya", nivel:4,  daño:8, hechizo:"Fire Ball" },
+    { nombre:"Pyrita",   nivel:10, daño:6, hechizo:"Fire Bolt" },
+    { nombre:"Venomia",  nivel:10, daño:4, hechizo:"Poison Bolt" },
+  ],
+  Hechizos: [
+    { nombre:"Advanced firebolt",     tipo:"Fuego",      nivel:16, esencias:"6 red essence",     descripcion:"Shoots a fire bolt that burns the target." },
+    { nombre:"Advanced frostbolt",    tipo:"Hielo",      nivel:16, esencias:"6 blue essence",    descripcion:"Fires a bolt of ice, freezing the first victim that gets in its path." },
+    { nombre:"Undying magic",         tipo:"Arcano",     nivel:14, esencias:"15 arcane essence", descripcion:"Activated after your death to preserve active buff spells." },
+    { nombre:"Magic bolt",            tipo:"Arcano",     nivel:16, esencias:"2 arcane essence",  descripcion:null },
+    { nombre:"Advanced regeneration", tipo:"Sanación",   nivel:16, esencias:"20 green essence",  descripcion:"While this spell is active, your wounds heal quickly." },
+    { nombre:"Titan strength",        tipo:"Alteración", nivel:16, esencias:"12 yellow essence", descripcion:"Increases your strength, making your attacks more powerful." },
+    { nombre:"Slow",                  tipo:"Alteración", nivel:null,esencias:null,               descripcion:null },
+  ],
+  Linternas: [
+    { nombre:"Crystal of Archmage",       bonus:"Fire crit. chance +25%\nFrost crit. chance +25%\nArcane crit. chance +25%\nFire dmg. +25%\nFrost dmg. +25%\nArcane dmg. +25%\nMelee prot. -50", especial:"This crystal emmits some green creepy light. You don't feel safe while holding it." },
+    { nombre:"Hex-Clock",                 bonus:"General speed +30%\nHP regen. -24",                                                                                                             especial:"Makes you grow older, killing you by time. Strange device made by Noctae." },
+    { nombre:"Holy Cross",                bonus:"Light dmg. +25%\nLight crit. chance +10%",                                                                                                     especial:null },
+    { nombre:"Lantern",                   bonus:"Fire crit. chance +15%\nFrost crit. chance +15%\nFire dmg. +10%\nFrost dmg. +10%",                                                              especial:null },
+    { nombre:"Latern of Miracle Healing", bonus:"Healing +50%\nHP regen. 5\nx166 +10%",                                                                                                         especial:null },
+    { nombre:"Lighting pumpkin",          bonus:"Fire dmg. +12%\nArcane dmg. +12%\nFire crit. chance +3%\nArcane crit. chance +3%",                                                              especial:"Evento Halloween" },
+    { nombre:"Voodoo Head",               bonus:"Trap dmg. reduction 25%\nArcane dmg. +20%",                                                                                                    especial:null },
+  ],
+  Armaduras: [
+    { nombre:"Armor of Gendurion",            nivel:16, bonus:"Melee prot. +125\nProjectiles prot. +125\nPolearm att. speed +30%\nMelee dodge chance +33%",                           especial:null },
+    { nombre:"Armor of the Dark Archer",      nivel:20, bonus:"Melee prot. +175\nProjectiles prot. +175\nBow dmg. +150\nBow att. speed +20%",                                         especial:null },
+    { nombre:"Armor of the Devoted Paladin",  nivel:18, bonus:"Arcane prot. +250\nMelee prot. +250\nProjectiles prot. +250\nMax HP +250\nExtra divine favours: +4",                   especial:null },
+    { nombre:"Baller's armor",                nivel:0,  bonus:"Sword crit. chance +25%\nMace crit. chance +25%\nAxe crit. chance +25%",                                              especial:"+5 to Swag. Pimped out armor with ice and jewels cuz its gangsta." },
+    { nombre:"Blessed armor of Raak",         nivel:15, bonus:"Melee prot. +500\nProjectiles prot. +500\nGeneral speed -40%",                                                         especial:null },
+    { nombre:"Blessed platemail of Luxor",    nivel:14, bonus:"Melee prot. +100\nProjectiles prot. +100\nHP Regen. 10",                                                               especial:null },
+    { nombre:"Blessed thornmail of Cecil",    nivel:14, bonus:"Max HP +500\nMelee prot. -50\nProjectiles prot. -50",                                                                 especial:"Damage returned from melee attacks: 200%" },
+    { nombre:"Executor Armor",                nivel:20, bonus:"Melee prot. +400\nProjectiles prot. +400\nMace att. speed +30%\nAxe att. speed +30%\nFire prot. +80\nFrost prot. +80",especial:null },
+    { nombre:"Golem Armor",                   nivel:16, bonus:"Melee prot. +400\nProjectiles prot. +400\nAny damage bonus is disabled.\nGeneral speed -15%",                          especial:null },
+    { nombre:"Ranger Deathwearer",            nivel:12, bonus:"Fire prot. +30\nFrost prot. +30\nMelee prot. +30\nProjectiles prot. +30\nBow dmg. +80\nBow crit. chance +15%",        especial:null },
+    { nombre:"Santa clothes",                nivel:0,  bonus:"Frost prot. +100\nFrost dmg. +50%\nFire prot. -50",                                                                    especial:"Evento Navidad" },
+    { nombre:"Skeleton costume",             nivel:0,  bonus:null,                                                                                                                  especial:"Evento Halloween" },
+    { nombre:"Umbra's Leather armor of evasion",nivel:16,bonus:"Melee prot. +100\nProjectiles prot. +100\nMelee dodge chance +50%\nDagger att. speed +25%\nSword att. speed +25%",  especial:null },
+  ],
+  Togas: [
+    { nombre:"Peices of Demonic armor", nivel:13, bonus:"Arcane dmg. +100%\nArcane crit. chance +5%\nArcane essences saving +2", especial:null },
+  ],
+};
+
+// Subtipos de armas → categoría DB
+const SUB2CAT = { Daga:"Dagas", Espada:"Espadas", Maza:"Mazas", Hacha:"Hachas", Asta:"Astas", Arco:"Arcos", "Bastón":"Bastones", Varita:"Varitas" };
+
+// Mapa de ítems por mapa (del Excel - hoja Índice)
+const MAPS = [
+  { name:"Big Tree Climb", drops:[
+    { cat:"Anillos",   nombre:"Kanmuru's Bracelet",  garantizado:false },
+    { cat:"Linternas", nombre:"Hex-Clock",            garantizado:false },
+    { cat:"Armas",     nombre:"Golden Knife",         sub:"Daga",    garantizado:false },
+    { cat:"Armas",     nombre:"Halbertus",            sub:"Asta",    garantizado:false },
+    { cat:"Armas",     nombre:"Celestus",             sub:"Bastón",  garantizado:false },
+    { cat:"Armas",     nombre:"Chaos",                sub:"Bastón",  garantizado:false },
+    { cat:"Armas",     nombre:"Drakonite",            sub:"Bastón",  garantizado:false },
+    { cat:"Armas",     nombre:"Glacius",              sub:"Bastón",  garantizado:false },
+    { cat:"Armas",     nombre:"Miraculum",            sub:"Bastón",  garantizado:false },
+    { cat:"Hechizos",  nombre:"Advanced firebolt",    garantizado:true  },
+    { cat:"Hechizos",  nombre:"Advanced frostbolt",   garantizado:true  },
+    { cat:"Hechizos",  nombre:"Magic bolt",           garantizado:true  },
+    { cat:"Hechizos",  nombre:"Advanced regeneration",garantizado:true  },
+  ]},
+  { name:"The Final Battle", drops:[
+    { cat:"Anillos",   nombre:"Ring of Gendurion",        garantizado:false },
+    { cat:"Armaduras", nombre:"Armor of Gendurion",       garantizado:false },
+    { cat:"Armas",     nombre:"Spear of Gendurion",       sub:"Asta",       garantizado:false },
+    { cat:"Hechizos",  nombre:"Slow",                     garantizado:false },
+  ]},
+  { name:"Escape from the Orcish Unfort", drops:[
+    { cat:"Armaduras", nombre:"Golem Armor",               garantizado:false },
+    { cat:"Armaduras", nombre:"Blessed armor of Raak",     garantizado:false },
+    { cat:"Armaduras", nombre:"Blessed thornmail of Cecil", garantizado:false },
+    { cat:"Hechizos",  nombre:"Titan strength",            garantizado:false },
+  ]},
+  { name:"Twilight", drops:[
+    { cat:"Hechizos", nombre:"Undying magic", garantizado:false },
+  ]},
+  { name:"The Wizard's basement", drops:[
+    { cat:"Anillos",   nombre:"Blessed ring of Manasa",          garantizado:false },
+    { cat:"Armaduras", nombre:"Umbra's Leather armor of evasion", garantizado:false },
+    { cat:"Armas",     nombre:"Edward's Cursed Blade",           sub:"Espada", garantizado:false },
+    { cat:"Armas",     nombre:"Spike's eviscerator",             sub:"Espada", garantizado:false },
+    { cat:"Hechizos",  nombre:"Undying magic",                   garantizado:true },
+  ]},
+  { name:"The Revenge of Darkness", drops:[
+    { cat:"Anillos",   nombre:"Ring of Axe Mastery",      garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Bow Mastery",      garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Dagger Mastery",   garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Mace Mastery",     garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Polearm Mastery",  garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Sword Mastery",    garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Staff Mastery",    garantizado:false },
+    { cat:"Linternas", nombre:"Latern of Miracle Healing", garantizado:false },
+    { cat:"Armaduras", nombre:"Armor of the Dark Archer",  garantizado:false },
+    { cat:"Armas",     nombre:"Stiven's Rib",             sub:"Daga",  garantizado:false },
+    { cat:"Armas",     nombre:"Bonebreaker",              sub:"Maza",  garantizado:false },
+    { cat:"Armas",     nombre:"Hellfire Bow",             sub:"Arco",  garantizado:false },
+  ]},
+  { name:"The Nightmare Adventure", drops:[
+    { cat:"Anillos", nombre:"Ring of alteration mastery", garantizado:false },
+    { cat:"Anillos", nombre:"Ring of arcane mastery",     garantizado:false },
+    { cat:"Anillos", nombre:"Ring of fire mastery",       garantizado:false },
+    { cat:"Anillos", nombre:"Ring of ice mastery",        garantizado:false },
+    { cat:"Anillos", nombre:"Ring of heal mastery",       garantizado:false },
+    { cat:"Anillos", nombre:"Ring of light mastery",      garantizado:false },
+    { cat:"Anillos", nombre:"Ring of Immortal",           garantizado:false },
+    { cat:"Armas",   nombre:"Axe of the crypt keeper",   sub:"Hacha", garantizado:false },
+  ]},
+  { name:"The Jungle Temple", drops:[
+    { cat:"Anillos",   nombre:"Ring of the Assassin", garantizado:false },
+    { cat:"Armaduras", nombre:"Executor Armor",        garantizado:false },
+    { cat:"Armas",     nombre:"Healing Idol",          sub:"Maza",  garantizado:false },
+    { cat:"Armas",     nombre:"Hammer of Justice",     sub:"Maza",  garantizado:false },
+  ]},
+  { name:"The Count of Monte Orc", drops:[
+    { cat:"Anillos", nombre:"Kol'Zarek's Ring of Strength",       garantizado:false },
+    { cat:"Anillos", nombre:"Blue Ring of Ras'kah",               garantizado:false },
+    { cat:"Anillos", nombre:"Protective ring of ice",             garantizado:false },
+    { cat:"Anillos", nombre:"Protective ring of the necromancer", garantizado:false },
+    { cat:"Armas",   nombre:"Devian",       sub:"Hacha",  garantizado:false },
+    { cat:"Armas",   nombre:"Ontrixion",    sub:"Daga",   garantizado:false },
+    { cat:"Armas",   nombre:"Zweigart",     sub:"Espada", garantizado:false },
+    { cat:"Armas",   nombre:"Skeletroyer",  sub:"Maza",   garantizado:false },
+    { cat:"Armas",   nombre:"Eviscerax",    sub:"Asta",   garantizado:false },
+    { cat:"Armas",   nombre:"Deathwind",    sub:"Arco",   garantizado:false },
+  ]},
+  { name:"The Ancient Lord", drops:[
+    { cat:"Anillos", nombre:"Ring of the Ancient Lord",    garantizado:false },
+    { cat:"Armas",   nombre:"Acidic Tear",                sub:"Arco",    garantizado:false },
+    { cat:"Armas",   nombre:"Ancient Elemental Staff",    sub:"Bastón",  garantizado:false },
+  ]},
+  { name:"Sherwood graveyard", drops:[
+    { cat:"Anillos", nombre:"Protective Ring of Maldur", garantizado:false },
+    { cat:"Anillos", nombre:"Skull ring",                garantizado:false },
+    { cat:"Armas",   nombre:"Incendya",                 sub:"Varita", garantizado:false },
+  ]},
+  { name:"Scabb Dungeon: Part 3", drops:[
+    { cat:"Anillos", nombre:"Cursed Ring of Slow", garantizado:false },
+    { cat:"Varitas", nombre:"Venomia", garantizado:false },
+  ]},
+  { name:"Night of the Tryfids", drops:[
+    { cat:"Anillos",   nombre:"Ring of the Warlock",             garantizado:false },
+    { cat:"Anillos",   nombre:"Protective ring of the mage",     garantizado:false },
+    { cat:"Anillos",   nombre:"Red Ring of Kal'Hor",             garantizado:false },
+    { cat:"Anillos",   nombre:"Protective ring of the elements", garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of the Underworld",          garantizado:false },
+    { cat:"Anillos",   nombre:"Healing Ring of Koorah",          garantizado:false },
+    { cat:"Anillos",   nombre:"Ring of Skies",                   garantizado:false },
+    { cat:"Linternas", nombre:"Lighting pumpkin",                garantizado:false },
+    { cat:"Armas",     nombre:"Stygma",     sub:"Daga",   garantizado:false },
+    { cat:"Armas",     nombre:"Rendaria",   sub:"Espada", garantizado:false },
+    { cat:"Armas",     nombre:"Ortox",      sub:"Maza",   garantizado:false },
+    { cat:"Armas",     nombre:"Gork' Haul", sub:"Hacha",  garantizado:false },
+    { cat:"Armas",     nombre:"Zelantia",   sub:"Asta",   garantizado:false },
+    { cat:"Armas",     nombre:"Skorpion",   sub:"Arco",   garantizado:false },
+    { cat:"Armas",     nombre:"Gelita",     sub:"Varita", garantizado:false },
+  ]},
+  { name:"War is coming", drops:[
+    { cat:"Linternas", nombre:"Crystal of Archmage",          garantizado:false },
+    { cat:"Linternas", nombre:"Holy Cross",                   garantizado:false },
+    { cat:"Linternas", nombre:"Lantern",                      garantizado:false },
+    { cat:"Armaduras", nombre:"Armor of the Devoted Paladin", garantizado:false },
+    { cat:"Armas",     nombre:"Illness",   sub:"Daga",    garantizado:false },
+    { cat:"Armas",     nombre:"Ashes",     sub:"Espada",  garantizado:false },
+    { cat:"Armas",     nombre:"Fracture",  sub:"Maza",    garantizado:false },
+    { cat:"Armas",     nombre:"Chap",      sub:"Hacha",   garantizado:false },
+    { cat:"Armas",     nombre:"Storm",     sub:"Asta",    garantizado:false },
+    { cat:"Armas",     nombre:"Drill",     sub:"Arco",    garantizado:false },
+    { cat:"Armas",     nombre:"Great Staff of the Alchemist", sub:"Bastón", garantizado:false },
+  ]},
+  { name:"The Royal Tomb of Al Sheder", drops:[
+    { cat:"Linternas", nombre:"Blessed platemail of Luxor", garantizado:false },
+    { cat:"Togas",     nombre:"Peices of Demonic armor",    garantizado:false },
+    { cat:"Armas",     nombre:"Demonic staff",              sub:"Bastón", garantizado:false },
+  ]},
+  { name:"Exploring a hole", drops:[
+    { cat:"Armaduras", nombre:"Skeleton costume", garantizado:false },
+    { cat:"Armas",     nombre:"Pyrita",           sub:"Varita", garantizado:false },
+  ]},
+  { name:"The dungeon of satyrs", drops:[
+    { cat:"Armaduras", nombre:"Santa clothes", garantizado:false },
+    { cat:"Armas",     nombre:"Gaetha",        sub:"Daga",  garantizado:false },
+  ]},
+  { name:"Veni Vidi Vici", drops:[
+    { cat:"Armaduras", nombre:"Baller's armor", garantizado:false },
+  ]},
+  { name:"Florent's House", drops:[
+    { cat:"Armas", nombre:"Demolisher",   sub:"Maza", garantizado:false },
+    { cat:"Armas", nombre:"LanceLoth",    sub:"Asta", garantizado:false },
+    { cat:"Armas", nombre:"Ranged Anger", sub:"Arco", garantizado:false },
+  ]},
+  { name:"Bax Simbel Profanation", drops:[
+    { cat:"Armas", nombre:"Horga'hn Axe", sub:"Hacha", garantizado:false },
+  ]},
+  { name:"The Ghost Armor Army", drops:[
+    { cat:"Armas", nombre:"CubanB's Staff", sub:"Bastón", garantizado:false },
+  ]},
+  { name:"The search for the magic", drops:[
+    { cat:"Armas", nombre:"Arkanita", sub:"Varita", garantizado:false },
+  ]},
+];
+
+// ════════════════════════════════════════════════════════════════════
+// METADATA DE CATEGORÍAS
+// ════════════════════════════════════════════════════════════════════
+const CAT_META = {
+  Anillos:  { icon:"💍", color:"#9050d0" },
+  Dagas:    { icon:"🗡", color:"#c0302a" },
+  Espadas:  { icon:"⚔️", color:"#c05030" },
+  Mazas:    { icon:"🔨", color:"#b07020" },
+  Hachas:   { icon:"🪓", color:"#805030" },
+  Astas:    { icon:"🔱", color:"#407080" },
+  Arcos:    { icon:"🏹", color:"#407830" },
+  Bastones: { icon:"🪄", color:"#5040a0" },
+  Varitas:  { icon:"✨", color:"#7060b0" },
+  Hechizos: { icon:"🔮", color:"#8030a0" },
+  Linternas:{ icon:"🔦", color:"#b09020" },
+  Armaduras:{ icon:"🛡", color:"#407060" },
+  Togas:    { icon:"🧙", color:"#604080" },
+};
+
+// ════════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════════
+function resolveDropCat(drop) {
+  if (drop.cat === "Armas" && drop.sub) return SUB2CAT[drop.sub] || drop.cat;
+  return drop.cat;
+}
+function resolveDropItem(drop) {
+  const cat = resolveDropCat(drop);
+  const list = DB[cat] || [];
+  return { cat, item: list.find(i => i.nombre.toLowerCase() === drop.nombre.toLowerCase()) || null };
+}
+function lookup(catName, nombre) {
+  return (DB[catName]||[]).find(i => i.nombre.toLowerCase() === nombre.toLowerCase()) || null;
+}
+function getMapsForItem(catName, nombre) {
+  return MAPS.filter(m => m.drops.some(d => resolveDropCat(d) === catName && d.nombre.toLowerCase() === nombre.toLowerCase())).map(m => m.name);
+}
+
+let currentSort = {};
+
+// ════════════════════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════════════════════
+const tabs = document.getElementById('mainTabs');
+const panelContainer = document.getElementById('panelContainer');
+const TAB_DEFS = [
+  { id:'mapas', label:'🗺 Por Mapa' },
+  ...Object.keys(CAT_META).map(k => ({ id:k, label:`${CAT_META[k].icon} ${k}` }))
+];
+
+function buildTabs() {
+  TAB_DEFS.forEach((t,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i===0?' active':'');
+    btn.textContent = t.label;
+    btn.dataset.tab = t.id;
+    btn.onclick = () => switchTab(t.id);
+    tabs.appendChild(btn);
+  });
+}
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id==='panel-'+id));
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MAP PANEL — lista con expansión inline
+// ════════════════════════════════════════════════════════════════════
+function buildMapPanel() {
+  const panel = document.createElement('div');
+  panel.id = 'panel-mapas';
+  panel.className = 'panel active';
+
+  panel.innerHTML = `
+    <div class="controls">
+      <div class="search-wrap"><input type="text" id="mapSearch" placeholder="Buscar mapa o ítem…"></div>
+      <select id="mapCatFilter">
+        <option value="">Todas las categorías</option>
+        ${Object.keys(CAT_META).map(k=>`<option value="${k}">${CAT_META[k].icon} ${k}</option>`).join('')}
+      </select>
+    </div>
+    <div class="map-list" id="mapList"></div>`;
+
+  panelContainer.appendChild(panel);
+  renderMapList('','');
+
+  document.getElementById('mapSearch').addEventListener('input', e =>
+    renderMapList(e.target.value, document.getElementById('mapCatFilter').value));
+  document.getElementById('mapCatFilter').addEventListener('change', e =>
+    renderMapList(document.getElementById('mapSearch').value, e.target.value));
+}
+
+function renderMapList(search, catFilter) {
+  const list = document.getElementById('mapList');
+  list.innerHTML = '';
+  const s = search.toLowerCase().trim();
+  let shown = 0;
+
+  MAPS.forEach(map => {
+    // apply category filter first
+    let drops = catFilter
+      ? map.drops.filter(d => resolveDropCat(d) === catFilter)
+      : map.drops;
+
+    // apply text search
+    if (s) {
+      const nameMatch = map.name.toLowerCase().includes(s);
+      const itemMatch = drops.filter(d => d.nombre.toLowerCase().includes(s));
+      if (!nameMatch && itemMatch.length === 0) return;
+      // if map name matches show all (possibly filtered) drops; else only matching ones
+      if (!nameMatch) drops = itemMatch;
+    }
+
+    if (drops.length === 0) return;
+
+    // count by resolved category
+    const catCounts = {};
+    drops.forEach(d => {
+      const c = resolveDropCat(d);
+      catCounts[c] = (catCounts[c]||0)+1;
+    });
+
+    const badges = Object.entries(catCounts).map(([c,n]) => {
+      const m = CAT_META[c]||{};
+      return `<span class="map-badge" style="border-color:${m.color||'#666'};color:${m.color||'#aaa'}">${m.icon||''} ${c} ×${n}</span>`;
+    }).join('');
+
+    const row = document.createElement('div');
+    row.className = 'map-row';
+    row.innerHTML = `
+      <div class="map-row-header">
+        <span class="map-row-arrow">▶</span>
+        <span class="map-row-name">${map.name}</span>
+        <div class="map-row-badges">${badges}</div>
+      </div>
+      <div class="map-row-body">
+        <div class="map-items-grid">${renderItemCards(drops)}</div>
+      </div>`;
+
+    row.querySelector('.map-row-header').addEventListener('click', () => {
+      const wasOpen = row.classList.contains('open');
+      document.querySelectorAll('.map-row.open').forEach(r => r.classList.remove('open'));
+      if (!wasOpen) row.classList.add('open');
+    });
+
+    list.appendChild(row);
+    shown++;
+  });
+
+  if (shown===0) list.innerHTML = '<div class="no-results">No se encontraron mapas con esos criterios.</div>';
+}
+
+function renderItemCards(drops) {
+  return drops.map(drop => {
+    const { cat, item } = resolveDropItem(drop);
+    const meta = CAT_META[cat] || {};
+    const nameHtml = `${drop.nombre}${drop.sub?` <small style="opacity:.6">(${drop.sub})</small>`:''}${drop.garantizado?`<span class="guaranteed-tag">GARANTIZADO</span>`:''}`;
+
+    if (!item) {
+      return `<div class="item-card" style="border-left-color:${meta.color||'#666'}">
+        <div class="item-card-top">
+          <span class="item-card-name">${nameHtml}</span>
+          <span class="item-card-cat" style="color:${meta.color||'#aaa'}">${meta.icon||''} ${cat}</span>
+        </div>
+        <div class="item-stats" style="color:var(--text-dim);font-style:italic;font-size:.8rem">Sin datos disponibles</div>
+      </div>`;
+    }
+
+    // Build stats rows
+    let rows = '';
+    if (item.nivel !== undefined && item.nivel !== null)
+      rows += `<div class="item-stat"><span class="stat-lbl">Nivel</span><span class="stat-val">${item.nivel}</span></div>`;
+    if (item.daño !== undefined && item.daño !== null)
+      rows += `<div class="item-stat"><span class="stat-lbl">Daño</span><span class="stat-val">${item.daño}</span></div>`;
+    if (item.tipo)
+      rows += `<div class="item-stat"><span class="stat-lbl">Tipo</span><span class="stat-val">${item.tipo}</span></div>`;
+    if (item.hechizo)
+      rows += `<div class="item-stat"><span class="stat-lbl">Hechizo</span><span class="stat-val">${item.hechizo}</span></div>`;
+    if (item.esencias)
+      rows += `<div class="item-stat"><span class="stat-lbl">Esencias</span><span class="stat-val">${item.esencias}</span></div>`;
+    if (item.bonus)
+      rows += `<div class="item-stat"><span class="stat-lbl">Bonus</span><span class="stat-bonus">${item.bonus}</span></div>`;
+    if (item.descripcion)
+      rows += `<div class="item-stat"><span class="stat-lbl">Desc.</span><span class="stat-bonus">${item.descripcion}</span></div>`;
+
+    const special = item.especial
+      ? `<div class="item-card-special">${item.especial}</div>` : '';
+
+    const safeNombre = item.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="item-card" style="border-left-color:${meta.color||'#666'}" onclick="openItem('${cat}','${safeNombre}')">
+      <div class="item-card-top">
+        <span class="item-card-name">${nameHtml}</span>
+        <span class="item-card-cat" style="color:${meta.color||'#aaa'}">${meta.icon||''} ${cat}</span>
+      </div>
+      <div class="item-stats">${rows}</div>
+      ${special}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CATEGORY PANELS — tabla ordenable
+// ════════════════════════════════════════════════════════════════════
+function buildCategoryPanel(catName) {
+  const catItems = DB[catName] || [];
+  const panel = document.createElement('div');
+  panel.id = 'panel-'+catName;
+  panel.className = 'panel';
+
+  const sample = catItems[0] || {};
+  const fields = ['nombre',
+    ...['nivel','daño','tipo','hechizo','esencias','bonus','especial','descripcion'].filter(f => f in sample),
+    'mapas'
+  ];
+
+  const itemsWithMaps = catItems.map(item => ({
+    ...item,
+    mapas: getMapsForItem(catName, item.nombre)
+  }));
+
+  panel.innerHTML = `
+    <div class="controls">
+      <div class="search-wrap"><input type="text" id="search-${catName}" placeholder="Buscar en ${catName}…"></div>
+    </div>
+    <div class="table-wrap" id="twrap-${catName}"></div>`;
+
+  panelContainer.appendChild(panel);
+  renderTable(catName, itemsWithMaps, fields, '', null, null);
+
+  document.getElementById('search-'+catName).addEventListener('input', e => {
+    const s = currentSort[catName]||{};
+    renderTable(catName, itemsWithMaps, fields, e.target.value, s.col, s.dir);
+  });
+}
+
+const LABELS = { nombre:'Nombre', nivel:'Nivel', daño:'Daño', tipo:'Tipo', hechizo:'Hechizo', esencias:'Esencias', bonus:'Bonus', especial:'Especial', descripcion:'Descripción', mapas:'Mapa(s)' };
+
+function renderTable(catName, items, fields, search, sortCol, sortDir) {
+  currentSort[catName] = {col:sortCol, dir:sortDir};
+  const wrap = document.getElementById('twrap-'+catName);
+  const s = search.toLowerCase();
+
+  let rows = items.filter(item =>
+    !s || Object.values(item).some(v => v && String(v).toLowerCase().includes(s))
+  );
+
+  if (sortCol) {
+    rows = [...rows].sort((a,b) => {
+      let va = a[sortCol]??'', vb = b[sortCol]??'';
+      if (typeof va==='number'&&typeof vb==='number') return sortDir==='asc'?va-vb:vb-va;
+      va=String(va).toLowerCase(); vb=String(vb).toLowerCase();
+      return sortDir==='asc'?va.localeCompare(vb):vb.localeCompare(va);
+    });
+  }
+
+  if (rows.length===0) { wrap.innerHTML='<div class="no-results">No se encontraron ítems.</div>'; return; }
+
+  let html = '<table><thead><tr>';
+  fields.forEach(f => {
+    const sorted = sortCol===f;
+    const nextDir = sorted ? (sortDir==='asc'?'desc':'asc') : 'asc';
+    html += `<th class="${sorted?'sorted-'+sortDir:''}" onclick="sortTable('${catName}','${f}','${nextDir}')">${LABELS[f]||f}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(item => {
+    const safe = item.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html += `<tr onclick="openItem('${catName}','${safe}')">`;
+    fields.forEach(f => {
+      const v = item[f];
+      if (f==='nombre') html+=`<td class="name-col">${v||'—'}</td>`;
+      else if (f==='nivel'||f==='daño') html+=`<td class="num-col">${v!==null&&v!==undefined?v:'—'}</td>`;
+      else if (f==='mapas') {
+        const txt = Array.isArray(v)&&v.length>0 ? v.join(', ') : '<span style="color:var(--text-dim)">—</span>';
+        html+=`<td class="map-col">${txt}</td>`;
+      }
+      else html+=`<td class="bonus-col">${v?String(v).replace(/\n/g,'<br>'):'<span style="color:var(--text-dim)">—</span>'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+function sortTable(catName, col, dir) {
+  const catItems = DB[catName]||[];
+  const sample = catItems[0]||{};
+  const fields = ['nombre',...['nivel','daño','tipo','hechizo','esencias','bonus','especial','descripcion'].filter(f=>f in sample),'mapas'];
+  const itemsWithMaps = catItems.map(item=>({...item, mapas:getMapsForItem(catName,item.nombre)}));
+  const search = document.getElementById('search-'+catName)?.value||'';
+  renderTable(catName, itemsWithMaps, fields, search, col, dir);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════════════════════════
+function openItem(catName, nombre) {
+  const item = lookup(catName, nombre);
+  if (!item) return;
+  const meta = CAT_META[catName]||{};
+  const mapas = getMapsForItem(catName, nombre);
+
+  const fld = (label,val,cls='') => val!=null&&val!==''
+    ? `<div class="modal-field"><label>${label}</label><div class="val ${cls}">${String(val).replace(/\n/g,'<br>')}</div></div>` : '';
+
+  let html = `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${item.nombre}</h2>
+    <div class="modal-cat" style="color:${meta.color||'var(--text-dim)'}">${meta.icon||''} ${catName}</div>
+    ${fld('Nivel requerido', item.nivel, 'highlight')}
+    ${fld('Daño base',       item.daño,  'highlight')}
+    ${fld('Tipo',            item.tipo)}
+    ${fld('Hechizo',         item.hechizo)}
+    ${fld('Esencias',        item.esencias)}
+    ${fld('Bonus',           item.bonus)}`;
+
+  if (item.especial) html += `<div class="modal-field"><label>Especial</label><div class="val" style="font-style:italic;color:var(--gold)">${item.especial}</div></div>`;
+  html += fld('Descripción', item.descripcion);
+
+  if (mapas.length>0) {
+    html += `<div class="modal-field"><label>Se obtiene en</label><div style="margin-top:.3rem">${mapas.map(m=>`<span class="map-tag">🗺 ${m}</span>`).join('')}</div></div>`;
+  } else {
+    html += `<div class="modal-field"><label>Mapa</label><div class="val" style="color:var(--text-dim);font-style:italic">No registrado</div></div>`;
+  }
+
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target===document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ════════════════════════════════════════════════════════════════════
+// STATS BAR
+// ════════════════════════════════════════════════════════════════════
+function buildStats() {
+  const total = Object.values(DB).reduce((s,c)=>s+c.length,0);
+  document.getElementById('globalStats').innerHTML = `
+    <div class="stat-item"><strong>${MAPS.length}</strong> mapas con drops</div>
+    <div class="stat-item"><strong>${total}</strong> ítems en total</div>
+    <div class="stat-item"><strong>${Object.keys(DB).length}</strong> categorías</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════
+buildTabs();
+buildMapPanel();
+Object.keys(CAT_META).forEach(buildCategoryPanel);
+buildStats();
+</script>
+</body>
+</html>
