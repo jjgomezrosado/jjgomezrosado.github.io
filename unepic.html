@@ -431,7 +431,7 @@ const SUB2CAT = { Daga:"Dagas", Espada:"Espadas", Maza:"Mazas", Hacha:"Hachas", 
 
 // Mapa de ítems por mapa (del Excel - hoja Índice)
 const MAPS = [
-  { name:"Big Tree Climb", drops:[
+  { name:"Big Tree Climb", author:"Luminous", cat:"Mapas oficiales", players:"1-4", level:"17-20", desc:"The raid in the old castle made possible a new beginning, al that's left is choose a destination. A story driven dungeon with 150+ rooms (bring a sandwich and some cofee), well hidden secrets, devilish made puzzles and tough challenges.", drops:[
     { cat:"Anillos",   nombre:"Kanmuru's Bracelet",  garantizado:false },
     { cat:"Linternas", nombre:"Hex-Clock",            garantizado:false },
     { cat:"Armas",     nombre:"Golden Knife",         sub:"Daga",    garantizado:false },
@@ -446,29 +446,29 @@ const MAPS = [
     { cat:"Hechizos",  nombre:"Magic bolt",           garantizado:true  },
     { cat:"Hechizos",  nombre:"Advanced regeneration",garantizado:true  },
   ]},
-  { name:"The Final Battle", drops:[
+  { name:"The Final Battle", author:"Linefall", cat:"Mapas oficiales", players: "3-4", level:"20", desc: "Heroes have a really difficult choise on their way. Take gold and leave the curse, or try to save thousands of lives? What will you decide?", drops:[
     { cat:"Anillos",   nombre:"Ring of Gendurion",        garantizado:false },
     { cat:"Armaduras", nombre:"Armor of Gendurion",       garantizado:false },
     { cat:"Armas",     nombre:"Spear of Gendurion",       sub:"Asta",       garantizado:false },
     { cat:"Hechizos",  nombre:"Slow",                     garantizado:false },
   ]},
-  { name:"Escape from the Orcish Unfort", drops:[
+  { name:"Escape from the Orcish Unfort", author:"MarcusXDeadly", cat:"Mapas oficiales", players:"4", level:"12-16", desc:"While getting away from orcish chase, heroes discover some strange undeground dungeon. It seems the only way to escape is to explore these gloomy tunnels.", drops:[
     { cat:"Armaduras", nombre:"Golem Armor",               garantizado:false },
     { cat:"Armaduras", nombre:"Blessed armor of Raak",     garantizado:false },
     { cat:"Armaduras", nombre:"Blessed thornmail of Cecil", garantizado:false },
     { cat:"Hechizos",  nombre:"Titan strength",            garantizado:false },
   ]},
-  { name:"Twilight", drops:[
+  { name:"Crepúsculo", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"13-14", desc:"", drops:[
     { cat:"Hechizos", nombre:"Undying magic", garantizado:false },
   ]},
-  { name:"The Wizard's basement", drops:[
+  { name:"The Wizard's basement", author:"SpikeFoxyYoshi", cat:"Mapas de Unepic", players:"2-4", level:"14-17", desc:"War is a matter intelligent beings will always be faced to. You don't escape the rule. What matters now is which army you will side to survive... or make profit. Choose wisely, war is coming.", drops:[
     { cat:"Anillos",   nombre:"Blessed ring of Manasa",          garantizado:false },
     { cat:"Armaduras", nombre:"Umbra's Leather armor of evasion", garantizado:false },
     { cat:"Armas",     nombre:"Edward's Cursed Blade",           sub:"Espada", garantizado:false },
     { cat:"Armas",     nombre:"Spike's eviscerator",             sub:"Espada", garantizado:false },
     { cat:"Hechizos",  nombre:"Undying magic",                   garantizado:true },
   ]},
-  { name:"The Revenge of Darkness", drops:[
+  { name:"The Revenge of Darkness", author:"Marfolog", cat:"Mapas oficiales", players:"1-2", level:"18-20", desc:"Heroes were executed as a traitors of the King. But for some reason, after their death they got to the World of Dead. What will they choose? Helping Darkness for their lives or die in the place of Dead? Only you will decide!", drops:[
     { cat:"Anillos",   nombre:"Ring of Axe Mastery",      garantizado:false },
     { cat:"Anillos",   nombre:"Ring of Bow Mastery",      garantizado:false },
     { cat:"Anillos",   nombre:"Ring of Dagger Mastery",   garantizado:false },
@@ -482,7 +482,7 @@ const MAPS = [
     { cat:"Armas",     nombre:"Bonebreaker",              sub:"Maza",  garantizado:false },
     { cat:"Armas",     nombre:"Hellfire Bow",             sub:"Arco",  garantizado:false },
   ]},
-  { name:"The Nightmare Adventure", drops:[
+  { name:"The Nightmare Adventure", author:"Marfolog", cat:"Mapas oficiales", players:"4", level:"20", desc:"Heroes found strange catacombs, where according to the legend lives an anchient creature, that can do anything. Heroes take their risk and go to the catacombs, where they will find good loot or their death.", drops:[
     { cat:"Anillos", nombre:"Ring of alteration mastery", garantizado:false },
     { cat:"Anillos", nombre:"Ring of arcane mastery",     garantizado:false },
     { cat:"Anillos", nombre:"Ring of fire mastery",       garantizado:false },
@@ -492,13 +492,13 @@ const MAPS = [
     { cat:"Anillos", nombre:"Ring of Immortal",           garantizado:false },
     { cat:"Armas",   nombre:"Axe of the crypt keeper",   sub:"Hacha", garantizado:false },
   ]},
-  { name:"The Jungle Temple", drops:[
+  { name:"The Jungle Temple", author:"Marfolog", cat:"Mapas oficiales", players:"3-4", level:"20", desc:"Heroes were travelling around the world and found a trange jungle temple. What lies inside? Will they risk their lives and try to explore it?", drops:[
     { cat:"Anillos",   nombre:"Ring of the Assassin", garantizado:false },
     { cat:"Armaduras", nombre:"Executor Armor",        garantizado:false },
     { cat:"Armas",     nombre:"Healing Idol",          sub:"Maza",  garantizado:false },
     { cat:"Armas",     nombre:"Hammer of Justice",     sub:"Maza",  garantizado:false },
   ]},
-  { name:"The Count of Monte Orc", drops:[
+  { name:"El conde de Monteorco", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"11-12", desc:"", drops:[
     { cat:"Anillos", nombre:"Kol'Zarek's Ring of Strength",       garantizado:false },
     { cat:"Anillos", nombre:"Blue Ring of Ras'kah",               garantizado:false },
     { cat:"Anillos", nombre:"Protective ring of ice",             garantizado:false },
@@ -510,22 +510,22 @@ const MAPS = [
     { cat:"Armas",   nombre:"Eviscerax",    sub:"Asta",   garantizado:false },
     { cat:"Armas",   nombre:"Deathwind",    sub:"Arco",   garantizado:false },
   ]},
-  { name:"The Ancient Lord", drops:[
+  { name:"The Ancient Lord", author:"Linefall", cat:"Mapas oficiales", players:"3-4", level:"20", desc:"", drops:[
     { cat:"Anillos", nombre:"Ring of the Ancient Lord",    garantizado:false },
     { cat:"Armas",   nombre:"Acidic Tear",                sub:"Arco",    garantizado:false },
     { cat:"Armas",   nombre:"Ancient Elemental Staff",    sub:"Bastón",  garantizado:false },
   ]},
-  { name:"Sherwood graveyard", drops:[
+  { name:"El cementerio de Sherwood", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"9-10", desc:"", drops:[
     { cat:"Anillos", nombre:"Protective Ring of Maldur", garantizado:false },
     { cat:"Anillos", nombre:"Skull ring",                garantizado:false },
     { cat:"Armas",   nombre:"Incendya",                 sub:"Varita", garantizado:false },
   ]},
-  { name:"Scabb Dungeon: Part 3", drops:[
+  { name:"Scabb Dungeon: Part 3", author:"Corentin Brûlé", cat:"Mapas oficiales", players:"1", level:"12-17", desc:"", drops:[
     { cat:"Anillos", nombre:"Cursed Ring of Slow", garantizado:false },
     { cat:"Varitas", nombre:"Venomia", garantizado:false },
     { cat:"Linternas", nombre:"Voodoo Head", garantizado:false },
   ]},
-  { name:"Night of the Tryfids", drops:[
+  { name:"La noche de los trífidos", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"7-8", desc:"", drops:[
     { cat:"Anillos",   nombre:"Ring of the Warlock",             garantizado:false },
     { cat:"Anillos",   nombre:"Protective ring of the mage",     garantizado:false },
     { cat:"Anillos",   nombre:"Red Ring of Kal'Hor",             garantizado:false },
@@ -542,7 +542,7 @@ const MAPS = [
     { cat:"Armas",     nombre:"Skorpion",   sub:"Arco",   garantizado:false },
     { cat:"Armas",     nombre:"Gelita",     sub:"Varita", garantizado:false },
   ]},
-  { name:"War is coming", drops:[
+  { name:"War is coming", author:"Corentin Brûlé", cat:"Mapas oficiales", players:"2-4", level:"18-20", desc:"", drops:[
     { cat:"Linternas", nombre:"Crystal of Archmage",          garantizado:false },
     { cat:"Linternas", nombre:"Holy Cross",                   garantizado:false },
     { cat:"Linternas", nombre:"Lantern",                      garantizado:false },
@@ -555,34 +555,34 @@ const MAPS = [
     { cat:"Armas",     nombre:"Drill",     sub:"Arco",    garantizado:false },
     { cat:"Armas",     nombre:"Great Staff of the Alchemist", sub:"Bastón", garantizado:false },
   ]},
-  { name:"The Royal Tomb of Al Sheder", drops:[
+  { name:"The Royal Tomb of Al Sheder", author:"MarcusXDeadly", cat:"Mapas oficiales", players:"4", level:"10-15", desc:"", drops:[
     { cat:"Linternas", nombre:"Blessed platemail of Luxor", garantizado:false },
     { cat:"Togas",     nombre:"Peices of Demonic armor",    garantizado:false },
     { cat:"Armas",     nombre:"Demonic staff",              sub:"Bastón", garantizado:false },
   ]},
-  { name:"Exploring a hole", drops:[
+  { name:"Explorando un agujero", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"5-6", desc:"", drops:[
     { cat:"Armaduras", nombre:"Skeleton costume", garantizado:false },
     { cat:"Armas",     nombre:"Pyrita",           sub:"Varita", garantizado:false },
   ]},
-  { name:"The dungeon of satyrs", drops:[
+  { name:"La mazmorra de los Sátiros", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"1-2", desc:"", drops:[
     { cat:"Armaduras", nombre:"Santa clothes", garantizado:false },
     { cat:"Armas",     nombre:"Gaetha",        sub:"Daga",  garantizado:false },
   ]},
-  { name:"Veni Vidi Vici", drops:[
+  { name:"Veni Vidi Vici [PERMADEATH]", author:"@juan_barbosa", cat:"Mapas oficiales", players:"1-2", level:"15-16", desc:"", drops:[
     { cat:"Armaduras", nombre:"Baller's armor", garantizado:false },
   ]},
-  { name:"Florent's House", drops:[
+  { name:"Florent's House", author:"PeterWar", cat:"Mapas oficiales", players:"1-2", level:"11-20", desc:"", drops:[
     { cat:"Armas", nombre:"Demolisher",   sub:"Maza", garantizado:false },
     { cat:"Armas", nombre:"LanceLoth",    sub:"Asta", garantizado:false },
     { cat:"Armas", nombre:"Ranged Anger", sub:"Arco", garantizado:false },
   ]},
-  { name:"Bax Simbel Profanation", drops:[
+  { name:"Bax Simbel Profanation", author:"Enrique Colinet @Baxayaun", cat:"Mapas oficiales", players:"1", level:"3-6", desc:"", drops:[
     { cat:"Armas", nombre:"Horga'hn Axe", sub:"Hacha", garantizado:false },
   ]},
-  { name:"The Ghost Armor Army", drops:[
+  { name:"The Ghost Armor Army", author:"@juan_barbosa", cat:"Mapas oficiales", players:"2", level:"14-17", desc:"", drops:[
     { cat:"Armas", nombre:"CubanB's Staff", sub:"Bastón", garantizado:false },
   ]},
-  { name:"The search for the magic", drops:[
+  { name:"En busca de las magia", author:"@unepic_fran", cat:"Mapas de Unepic", players:"3", level:"3-4", desc:"", drops:[
     { cat:"Armas", nombre:"Arkanita", sub:"Varita", garantizado:false },
   ]},
 ];
@@ -719,7 +719,7 @@ function renderMapList(search, catFilter) {
     row.innerHTML = `
       <div class="map-row-header">
         <span class="map-row-arrow">▶</span>
-        <span class="map-row-name">${map.name}</span>
+        <span class="map-row-name">${map.name} (nivel ${map.level})</span>
         <div class="map-row-badges">${badges}</div>
       </div>
       <div class="map-row-body">
