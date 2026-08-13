@@ -231,20 +231,6 @@
     from{transform:rotate(-3deg) scale(.85);opacity:0;}
     to{transform:rotate(-3deg) scale(1);opacity:1;}
   }
-  .stamp-note{
-    font-size:13px;
-    color:var(--muted);
-    line-height:1.5;
-  }
-  .stamp-note b{color:var(--text);font-weight:600;}
-
-  footer{
-    margin-top:22px;
-    color:var(--muted);
-    font-size:12px;
-    font-family:'IBM Plex Mono', monospace;
-  }
-
   @media (prefers-reduced-motion: reduce){
     .stamp{animation:none !important;}
   }
@@ -254,9 +240,7 @@
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">Suma de control &middot; registro de datos</p>
     <h1>Verificador de checksum</h1>
-    <p>Pega tus registros con campos <code>N.Name=</code> y <code>N.Score=</code>. Cada carácter de un nombre suma su valor ASCII, cada puntuación suma su valor numérico. El total es el checksum, y se compara contra el campo <code>Verification=</code> si está presente.</p>
   </header>
 
   <div class="grid">
@@ -291,13 +275,11 @@ Verification=99996151"></textarea>
       </div>
       <div class="stamp-wrap">
         <div class="stamp" id="stamp">Sin datos</div>
-        <div class="stamp-note" id="stampNote">Aún no hay ningún campo <b>Verification</b> con el que comparar.</div>
       </div>
     </section>
 
   </div>
 
-  <footer>Todo el cálculo ocurre en tu navegador · nada se envía a ningún servidor.</footer>
 </div>
 
 <script>
@@ -305,7 +287,6 @@ const input = document.getElementById('input');
 const rowsEl = document.getElementById('rows');
 const checksumValueEl = document.getElementById('checksumValue');
 const stampEl = document.getElementById('stamp');
-const stampNoteEl = document.getElementById('stampNote');
 
 const EXAMPLE = `0.Name=name1
 0.Score=99999999
@@ -355,11 +336,10 @@ function render(){
   const {fields, checksum, verification} = parseAndCompute(text);
 
   if(fields.length === 0){
-    rowsEl.innerHTML = '<div class="empty-rows">No se han detectado campos Name/Score. Revisa el formato, por ejemplo <code>0.Name=name1</code>.</div>';
+    rowsEl.innerHTML = '<div class="empty-rows">—</div>';
     checksumValueEl.textContent = '—';
     stampEl.className = 'stamp';
     stampEl.textContent = 'Sin datos';
-    stampNoteEl.innerHTML = 'Aún no hay ningún campo <b>Verification</b> con el que comparar.';
     return;
   }
 
@@ -377,15 +357,12 @@ function render(){
   if(verification === null){
     stampEl.className = 'stamp';
     stampEl.textContent = 'Sin Verification';
-    stampNoteEl.innerHTML = `No se ha encontrado un campo <b>Verification</b> en el texto. El checksum calculado es <b>${checksum}</b>.`;
   } else if(verification === checksum){
     stampEl.className = 'stamp ok';
     stampEl.textContent = 'Coincide ✓';
-    stampNoteEl.innerHTML = `El campo <b>Verification=${verification}</b> coincide con el checksum calculado.`;
   } else {
     stampEl.className = 'stamp bad';
     stampEl.textContent = 'No coincide ✕';
-    stampNoteEl.innerHTML = `<b>Verification=${verification}</b> no coincide con el checksum calculado (<b>${checksum}</b>).`;
   }
 }
 
